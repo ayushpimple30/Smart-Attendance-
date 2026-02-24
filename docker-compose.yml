@@ -1,0 +1,58 @@
+version: "3.9"
+
+services:
+  postgres:
+    image: postgres:15
+    restart: always
+    env_file:
+      - .env
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-attendance_db}
+      POSTGRES_USER: ${POSTGRES_USER:-user}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-password}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - smart_attendance_net
+
+  redis:
+    image: redis:7
+    restart: always
+    ports:
+      - "6379:6379"
+    networks:
+      - smart_attendance_net
+
+  backend:
+    build: .
+    restart: always
+    env_file:
+      - .env
+    depends_on:
+      - postgres
+      - redis
+    ports:
+      - "8000:8000"
+    networks:
+      - smart_attendance_net
+
+  scheduler:
+    build: .
+    restart: always
+    env_file:
+      - .env
+    command: python -m app.services.session_scheduler
+    environment:
+      RUN_SCHEDULER: "true"
+    depends_on:
+      - postgres
+      - redis
+    networks:
+      - smart_attendance_net
+
+volumes:
+  postgres_data:
+
+networks:
+  smart_attendance_net:
+    driver: bridge

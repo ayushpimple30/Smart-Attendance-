@@ -1,0 +1,10 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: smart-attendance-config
+data:
+  APP_ENV: "production"
+  RATE_LIMIT_PER_MINUTE: "60"
+  ACCESS_TOKEN_EXPIRE_MINUTES: "60"
+  LOG_LEVEL: "INFO"
+  CORS_ORIGINS: "*"
